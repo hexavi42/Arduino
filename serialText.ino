@@ -31,10 +31,11 @@ void loop() {
   serialEvent(); //call the function
   // print the string when a newline arrives:
   if (stringComplete) {
-    scrollText(inputString)
+    scrollText(inputString);
     // clear the string:
-inputString = "";
-stringComplete = false;
+    inputString = "";
+    stringComplete = false;
+  }
 }
 
 /*
