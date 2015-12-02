@@ -90,7 +90,7 @@ void scrollText(String textToDisplay) {
     matrix.setCursor(--x, 0);
     matrix.print(textToDisplay);
     matrix.show();
-    delay(150);
+    delay(60);
   }
 }
 
