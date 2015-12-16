@@ -14,7 +14,7 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
 String inputString = "";         // a string to hold incoming data
 String inputType = "";           // a string to indicate type of incoming data
 boolean stringComplete = false;  // whether the string is complete
-int displayIMG[8][8] = [];
+int displayIMG[8][8] = {0};
 struct RGB bgColor = teal;
 struct RGB fgColor = white;
 int pixelPos = 0;
@@ -49,11 +49,11 @@ void loop() {
       }
       else if (inputType == 'f') {
         // set text background color
-        bgColor = hex2RGB( (int)strtol(inputString, NULL, 0) );
+        bgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
       }
       else if (inputType == 'b') {
         // set foreground color and push to text color
-        fgColor = hex2RGB( (int)strtol(inputString, NULL, 0) );
+        fgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
       }
       else if (inputType == 'i') {
@@ -79,7 +79,7 @@ void serialEvent() {
     // get the new byte:
     char inChar = (char)Serial.read();
     if (inputType == 'i' && inChar == ' ') {
-      displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString, NULL, 0);
+      displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString.c_str(), NULL, 0);
       pixelPos++;
       inputString = "";
     }
@@ -90,7 +90,7 @@ void serialEvent() {
       // so the main loop can do something about it:
       if (inChar == '\n') {
         stringComplete = true;
-        if (inputType = 'i') pixelPos = 0
+        if (inputType = 'i') pixelPos = 0;
       }
     }
   }
@@ -120,7 +120,7 @@ void colorWipe(RGB color, uint8_t wait) {
 void drawFast(int pic[8][8]) {
   for(int row = 0; row < 8; row++) {
     for(int column = 0; column < 8; column++) {
-      pRGB = hex2RGB(pic[column][row])
+      RGB pRGB = hex2RGB(pic[column][row]);
       matrix.drawPixel(column, row, matrix.Color(pRGB.r, pRGB.g, pRGB.b));
       matrix.show();
     }
