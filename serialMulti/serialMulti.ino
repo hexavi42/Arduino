@@ -14,10 +14,10 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
 String inputString = "";         // a string to hold incoming data
 String inputType = "";           // a string to indicate type of incoming data
 boolean stringComplete = false;  // whether the string is complete
-int displayIMG[8][8] = []
-struct RGB bgColor = teal
-struct RGB fgColor = white
-int pixelPos = 0
+int displayIMG[8][8] = [];
+struct RGB bgColor = teal;
+struct RGB fgColor = white;
+int pixelPos = 0;
 
 void setup() {
   // initialize serial:
@@ -39,28 +39,28 @@ void loop() {
   if (stringComplete) {
     if (inputType == "") {
       // collect input type
-      inputType = inputString
+      inputType = inputString;
     }
     else {
       // do assorted things based on input type
       if (inputType == 't') {
         // show the text
-        scrollText(inputString)
+        scrollText(inputString);
       }
       else if (inputType == 'f') {
         // set text background color
-        bgColor = hex2RGB(strtol(inputString));
+        bgColor = hex2RGB( (int)strtol(inputString, NULL, 0) );
       }
       else if (inputType == 'b') {
         // set foreground color and push to text color
-        fgColor = hex2RGB(strtol(inputString))
+        fgColor = hex2RGB( (int)strtol(inputString, NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
       }
       else if (inputType == 'i') {
-        drawFast(displayIMG)
+        drawFast(displayIMG);
       }
       // set inputType to blank
-      inputType = ""
+      inputType = "";
     }
     // clear the string:
     inputString = "";
@@ -79,9 +79,9 @@ void serialEvent() {
     // get the new byte:
     char inChar = (char)Serial.read();
     if (inputType == 'i' && inChar == ' ') {
-      displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString);
+      displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString, NULL, 0);
       pixelPos++;
-      inputString = ""
+      inputString = "";
     }
     else {
       // add it to the inputString:
