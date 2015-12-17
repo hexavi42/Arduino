@@ -43,20 +43,20 @@ void loop() {
     }
     else {
       // do assorted things based on input type
-      if (inputType == 't') {
+      if (inputType == "t") {
         // show the text
         scrollText(inputString);
       }
-      else if (inputType == 'f') {
+      else if (inputType == "f") {
         // set text background color
         bgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
       }
-      else if (inputType == 'b') {
+      else if (inputType == "b") {
         // set foreground color and push to text color
         fgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
       }
-      else if (inputType == 'i') {
+      else if (inputType == "i") {
         drawFast(displayIMG);
       }
       // set inputType to blank
@@ -78,7 +78,7 @@ void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    if (inputType == 'i' && inChar == ' ') {
+    if (inputType == "i" && inChar == ' ') {
       displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString.c_str(), NULL, 0);
       pixelPos++;
       inputString = "";
@@ -90,7 +90,7 @@ void serialEvent() {
       // so the main loop can do something about it:
       if (inChar == '\n') {
         stringComplete = true;
-        if (inputType = 'i') pixelPos = 0;
+        if (inputType == "i") pixelPos = 0;
       }
     }
   }
