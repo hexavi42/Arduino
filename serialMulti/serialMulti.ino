@@ -52,9 +52,7 @@ void loop() {
       else if (inputType == String("b\n")) {
         // set text background color
         bgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
-        Serial.print("background color changed: \n");
-        Serial.print(strtol(inputString.c_str(), NULL, 0));
-        Serial.print("\n");
+        Serial.print("background color changed: ");
         Serial.print(bgColor.r);
         Serial.print(" ");
         Serial.print(bgColor.g);
@@ -67,8 +65,6 @@ void loop() {
         fgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
         Serial.print("foreground color changed: ");
-        Serial.print(strtol(inputString.c_str(), NULL, 0));
-        Serial.print("\n");
         Serial.print(fgColor.r);
         Serial.print(" ");
         Serial.print(fgColor.g);
