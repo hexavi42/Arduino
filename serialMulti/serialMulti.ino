@@ -14,14 +14,14 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
 String inputString = "";         // a string to hold incoming data
 String inputType = "";           // a string to indicate type of incoming data
 boolean stringComplete = false;  // whether the string is complete
-int displayIMG[8][8] = {0};
+long displayIMG[8][8] = {0};
 struct RGB bgColor = teal;
 struct RGB fgColor = white;
 int pixelPos = 0;
 
 void setup() {
   // initialize serial:
-  Serial.begin(9600);
+  Serial.begin(115200);
   // reserve 200 bytes for the inputString:
   inputString.reserve(200);
 
@@ -40,24 +40,45 @@ void loop() {
     if (inputType == "") {
       // collect input type
       inputType = inputString;
+      Serial.print(inputType);
     }
     else {
       // do assorted things based on input type
-      if (inputType == "t") {
+      if (inputType == String("t\n")) {
         // show the text
         scrollText(inputString);
+        Serial.print("text printed\n");
       }
-      else if (inputType == "f") {
+      else if (inputType == String("b\n")) {
         // set text background color
-        bgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
+        bgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
+        Serial.print("background color changed: \n");
+        Serial.print(strtol(inputString.c_str(), NULL, 0));
+        Serial.print("\n");
+        Serial.print(bgColor.r);
+        Serial.print(" ");
+        Serial.print(bgColor.g);
+        Serial.print(" ");
+        Serial.print(bgColor.b);
+        Serial.print("\n");
       }
-      else if (inputType == "b") {
+      else if (inputType == String("f\n")) {
         // set foreground color and push to text color
-        fgColor = hex2RGB( (int)strtol(inputString.c_str(), NULL, 0) );
+        fgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
+        Serial.print("foreground color changed: ");
+        Serial.print(strtol(inputString.c_str(), NULL, 0));
+        Serial.print("\n");
+        Serial.print(fgColor.r);
+        Serial.print(" ");
+        Serial.print(fgColor.g);
+        Serial.print(" ");
+        Serial.print(fgColor.b);
+        Serial.print("\n");
       }
-      else if (inputType == "i") {
+      else if (inputType == String("i\n")) {
         drawFast(displayIMG);
+        Serial.print("image displayed\n");
       }
       // set inputType to blank
       inputType = "";
@@ -78,8 +99,8 @@ void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    if (inputType == "i" && inChar == ' ') {
-      displayIMG[pixelPos / 8][pixelPos % 8] = (int)strtol(inputString.c_str(), NULL, 0);
+    if (inputType == String("i\n") && inChar == ' ') {
+      displayIMG[pixelPos / 8][pixelPos % 8] = strtol(inputString.c_str(), NULL, 0);
       pixelPos++;
       inputString = "";
     }
@@ -90,18 +111,18 @@ void serialEvent() {
       // so the main loop can do something about it:
       if (inChar == '\n') {
         stringComplete = true;
-        if (inputType == "i") pixelPos = 0;
+        if (inputType == String("i")) pixelPos = 0;
       }
     }
   }
 }
 
-struct RGB hex2RGB(int hexValue)
+struct RGB hex2RGB(long hexValue)
 {
   struct RGB rgbColor;
-  rgbColor.r = ((hexValue >> 16) & 0xFF) / 255.0;  // Extract the RR byte
-  rgbColor.g = ((hexValue >> 8) & 0xFF) / 255.0;   // Extract the GG byte
-  rgbColor.b = ((hexValue) & 0xFF) / 255.0;        // Extract the BB byte
+  rgbColor.r = hexValue >> 16;         // Extract the RR byte
+  rgbColor.g = hexValue >> 8 & 0xFF;   // Extract the GG byte
+  rgbColor.b = hexValue & 0xFF;        // Extract the BB byte
 
   return rgbColor; 
 }
@@ -117,7 +138,7 @@ void colorWipe(RGB color, uint8_t wait) {
   }
 }
 
-void drawFast(int pic[8][8]) {
+void drawFast(long pic[8][8]) {
   for(int row = 0; row < 8; row++) {
     for(int column = 0; column < 8; column++) {
       RGB pRGB = hex2RGB(pic[column][row]);
