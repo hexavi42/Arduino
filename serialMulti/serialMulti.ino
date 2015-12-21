@@ -14,10 +14,12 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
 String inputString = "";         // a string to hold incoming data
 String inputType = "";           // a string to indicate type of incoming data
 boolean stringComplete = false;  // whether the string is complete
-long displayIMG[8][8] = {0};
+struct RGB displayIMG[8][8] = {0};
 struct RGB bgColor = teal;
 struct RGB fgColor = white;
+int lumin = 20;
 int pixelPos = 0;
+int text_delay = 60;
 
 void setup() {
   // initialize serial:
@@ -27,16 +29,18 @@ void setup() {
 
   // LED matrix setup
   matrix.begin();
-  matrix.setBrightness(20);
+  matrix.setBrightness(lumin);
   matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
   matrix.setTextWrap(false);
-  
+  scrollText("Ready!\n");
+  Serial.print("Ready!\n");
 }
 
 void loop() {
-  serialEvent(); //call the function
+  serialEvent(); // call the function
   // print the string when a newline arrives:
   if (stringComplete) {
+    // TODO: Allow querying of current variable values
     if (inputType == "") {
       // collect input type
       inputType = inputString;
@@ -52,29 +56,42 @@ void loop() {
       else if (inputType == String("b\n")) {
         // set text background color
         bgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
-        Serial.print("background color changed: ");
+        Serial.print("background color changed: r[");
         Serial.print(bgColor.r);
-        Serial.print(" ");
+        Serial.print("] g[");
         Serial.print(bgColor.g);
-        Serial.print(" ");
+        Serial.print("] b[");
         Serial.print(bgColor.b);
-        Serial.print("\n");
+        Serial.print("]\n");
       }
       else if (inputType == String("f\n")) {
         // set foreground color and push to text color
         fgColor = hex2RGB( strtol(inputString.c_str(), NULL, 0) );
         matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
-        Serial.print("foreground color changed: ");
+        Serial.print("foreground color changed: r[");
         Serial.print(fgColor.r);
-        Serial.print(" ");
+        Serial.print("] g[");
         Serial.print(fgColor.g);
-        Serial.print(" ");
+        Serial.print("] b[");
         Serial.print(fgColor.b);
-        Serial.print("\n");
+        Serial.print("]\n");
       }
       else if (inputType == String("i\n")) {
         drawFast(displayIMG);
         Serial.print("image displayed\n");
+      }
+      else if (inputType == String("l\n")) {
+        lumin = (int)(strtol(inputString.c_str(), NULL, 0));
+        matrix.setBrightness(lumin);
+        Serial.print("brightness set to: ");
+        Serial.print(lumin);
+        Serial.print("\n");
+      }
+      else if (inputType == String("s\n")) {
+        text_delay = (int)(strtol(inputString.c_str(), NULL, 0));
+        Serial.print("text delay set to: ");
+        Serial.print(text_delay);
+        Serial.print("\n");
       }
       // set inputType to blank
       inputType = "";
@@ -96,7 +113,7 @@ void serialEvent() {
     // get the new byte:
     char inChar = (char)Serial.read();
     if (inputType == String("i\n") && inChar == ' ') {
-      displayIMG[pixelPos / 8][pixelPos % 8] = strtol(inputString.c_str(), NULL, 0);
+      displayIMG[pixelPos / 8][pixelPos % 8] = hex2RGB(strtol(inputString.c_str(), NULL, 0));
       pixelPos++;
       inputString = "";
     }
@@ -134,14 +151,14 @@ void colorWipe(RGB color, uint8_t wait) {
   }
 }
 
-void drawFast(long pic[8][8]) {
-  for(int row = 0; row < 8; row++) {
-    for(int column = 0; column < 8; column++) {
-      RGB pRGB = hex2RGB(pic[column][row]);
-      matrix.drawPixel(column, row, matrix.Color(pRGB.r, pRGB.g, pRGB.b));
-      matrix.show();
+void drawFast(RGB pic[8][8]) {
+  for(int r = 0; r < 8; r++) {
+    for(int c = 0; c < 8; c++) {
+      RGB pRGB = pic[r][c];
+      matrix.drawPixel(c, r, matrix.Color(pRGB.r, pRGB.g, pRGB.b));
     }
   }
+  matrix.show();
 }
 
 void scrollText(String textToDisplay) {
@@ -157,7 +174,7 @@ void scrollText(String textToDisplay) {
     matrix.setCursor(--x, 0);
     matrix.print(textToDisplay);
     matrix.show();
-    delay(60);
+    delay(text_delay);
   }
 }
 
