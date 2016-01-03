@@ -69,6 +69,34 @@ void scrollText(String textToDisplay) {
   }
 }
 
+/*
+SerialEvent occurs whenever a new data comes in the
+hardware serial RX. This routine is run between each
+time loop() runs, so using delay inside loop can delay
+response. Multiple bytes of data may be available.
+*/
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    if (inputType == String("i\n") && inChar == ' ') {
+      displayIMG[pixelPos / 8][pixelPos % 8] = hex2RGB(strtol(inputString.c_str(), NULL, 0));
+      pixelPos++;
+      inputString = "";
+    }
+    else {
+      // add it to the inputString:
+      inputString += inChar;
+      // if the incoming character is a newline, set a flag
+      // so the main loop can do something about it:
+      if (inChar == '\n') {
+        stringComplete = true;
+        if (inputType == String("i")) pixelPos = 0;
+      }
+    }
+  }
+}
+
 void setup() {
   // initialize serial:
   Serial.begin(115200);
@@ -149,34 +177,6 @@ void loop() {
     // clear the string:
     inputString = "";
     stringComplete = false;
-  }
-}
-
-/*
-SerialEvent occurs whenever a new data comes in the
-hardware serial RX. This routine is run between each
-time loop() runs, so using delay inside loop can delay
-response. Multiple bytes of data may be available.
-*/
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    if (inputType == String("i\n") && inChar == ' ') {
-      displayIMG[pixelPos / 8][pixelPos % 8] = hex2RGB(strtol(inputString.c_str(), NULL, 0));
-      pixelPos++;
-      inputString = "";
-    }
-    else {
-      // add it to the inputString:
-      inputString += inChar;
-      // if the incoming character is a newline, set a flag
-      // so the main loop can do something about it:
-      if (inChar == '\n') {
-        stringComplete = true;
-        if (inputType == String("i")) pixelPos = 0;
-      }
-    }
   }
 }
 
