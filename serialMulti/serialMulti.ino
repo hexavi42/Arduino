@@ -109,7 +109,7 @@ void setup() {
   matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
   matrix.setTextWrap(false);
   // hold everythng until serial stream is open, doing nothing:
-  while (!Serial) ;
+  while (!Serial);
   scrollText("Ready!\n");
   Serial.print("Ready!\n");
 }
