@@ -48,7 +48,7 @@ class InoSerial:
             while True:
                 bytesToRead = self.ser.inWaiting()
                 reply += self.ser.read(bytesToRead)
-                if reply[-1] == "\n":
+                if len(reply) > 0 and reply[-1] == "\n":
                     return reply
 
     def push(self, msg):
@@ -97,10 +97,6 @@ class InoSerial:
     def ch_txthold(self, holdtime):
         self.push_wait('s', 's')
         return self.push(holdtime)
-
-# initiate Arduino interface
-ino = InoSerial('/dev/ttyACM0', 115200)
-ino.send_text('Server Up and Ready for Messages')
 
 # Flask app
 app = Flask(__name__)
@@ -166,4 +162,7 @@ def change_bg():
     return ino.ch_bgcolor(message)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80)
+    # initiate Arduino interface
+    ino = InoSerial('/dev/ttyACM0', 115200)
+    ino.send_text('Server Up and Ready for Messages')
+    app.run(host='0.0.0.0', port=80, debug=True)
