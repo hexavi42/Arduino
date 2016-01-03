@@ -6,6 +6,54 @@
 
 #define PIN 1
 
+struct RGB hex2RGB(long hexValue)
+{
+  struct RGB rgbColor;
+  rgbColor.r = hexValue >> 16;         // Extract the RR byte
+  rgbColor.g = hexValue >> 8 & 0xFF;   // Extract the GG byte
+  rgbColor.b = hexValue & 0xFF;        // Extract the BB byte
+
+  return rgbColor; 
+}
+
+// Fill the dots one after the other with a color
+void colorWipe(RGB color, uint8_t wait) {
+  for(uint16_t row=0; row < 8; row++) {
+    for(uint16_t column=0; column < 8; column++) {
+      matrix.drawPixel(column, row, matrix.Color(color.r, color.g, color.b));
+      matrix.show();
+      delay(wait);
+    }
+  }
+}
+
+void drawFast(RGB pic[8][8]) {
+  for(int r = 0; r < 8; r++) {
+    for(int c = 0; c < 8; c++) {
+      RGB pRGB = pic[r][c];
+      matrix.drawPixel(c, r, matrix.Color(pRGB.r, pRGB.g, pRGB.b));
+    }
+  }
+  matrix.show();
+}
+
+void scrollText(String textToDisplay) {
+  int x = matrix.width();
+  int pixelsInText = textToDisplay.length() * 7;
+  
+  matrix.setCursor(x, 0);
+  matrix.print(textToDisplay);
+  matrix.show();
+  
+  while(x > (matrix.width() - pixelsInText)) {
+    matrix.fillScreen(matrix.Color(bgColor.r, bgColor.g, bgColor.b));
+    matrix.setCursor(--x, 0);
+    matrix.print(textToDisplay);
+    matrix.show();
+    delay(text_delay);
+  }
+}
+
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
   NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
   NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
@@ -32,6 +80,8 @@ void setup() {
   matrix.setBrightness(lumin);
   matrix.setTextColor( matrix.Color(fgColor.r, fgColor.g, fgColor.b) );
   matrix.setTextWrap(false);
+  // hold everythng until serial stream is open, doing nothing:
+  while (!Serial) ;
   scrollText("Ready!\n");
   Serial.print("Ready!\n");
 }
@@ -127,54 +177,6 @@ void serialEvent() {
         if (inputType == String("i")) pixelPos = 0;
       }
     }
-  }
-}
-
-struct RGB hex2RGB(long hexValue)
-{
-  struct RGB rgbColor;
-  rgbColor.r = hexValue >> 16;         // Extract the RR byte
-  rgbColor.g = hexValue >> 8 & 0xFF;   // Extract the GG byte
-  rgbColor.b = hexValue & 0xFF;        // Extract the BB byte
-
-  return rgbColor; 
-}
-
-// Fill the dots one after the other with a color
-void colorWipe(RGB color, uint8_t wait) {
-  for(uint16_t row=0; row < 8; row++) {
-    for(uint16_t column=0; column < 8; column++) {
-      matrix.drawPixel(column, row, matrix.Color(color.r, color.g, color.b));
-      matrix.show();
-      delay(wait);
-    }
-  }
-}
-
-void drawFast(RGB pic[8][8]) {
-  for(int r = 0; r < 8; r++) {
-    for(int c = 0; c < 8; c++) {
-      RGB pRGB = pic[r][c];
-      matrix.drawPixel(c, r, matrix.Color(pRGB.r, pRGB.g, pRGB.b));
-    }
-  }
-  matrix.show();
-}
-
-void scrollText(String textToDisplay) {
-  int x = matrix.width();
-  int pixelsInText = textToDisplay.length() * 7;
-  
-  matrix.setCursor(x, 0);
-  matrix.print(textToDisplay);
-  matrix.show();
-  
-  while(x > (matrix.width() - pixelsInText)) {
-    matrix.fillScreen(matrix.Color(bgColor.r, bgColor.g, bgColor.b));
-    matrix.setCursor(--x, 0);
-    matrix.print(textToDisplay);
-    matrix.show();
-    delay(text_delay);
   }
 }
 
