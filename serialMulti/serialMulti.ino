@@ -6,6 +6,21 @@
 
 #define PIN 1
 
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
+  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
+  NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
+  NEO_GRB            + NEO_KHZ800);
+
+String inputString = "";         // a string to hold incoming data
+String inputType = "";           // a string to indicate type of incoming data
+boolean stringComplete = false;  // whether the string is complete
+struct RGB displayIMG[8][8] = {0};
+struct RGB bgColor = teal;
+struct RGB fgColor = white;
+int lumin = 20;
+int pixelPos = 0;
+int text_delay = 60;
+
 struct RGB hex2RGB(long hexValue)
 {
   struct RGB rgbColor;
@@ -53,21 +68,6 @@ void scrollText(String textToDisplay) {
     delay(text_delay);
   }
 }
-
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
-  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
-  NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
-  NEO_GRB            + NEO_KHZ800);
-
-String inputString = "";         // a string to hold incoming data
-String inputType = "";           // a string to indicate type of incoming data
-boolean stringComplete = false;  // whether the string is complete
-struct RGB displayIMG[8][8] = {0};
-struct RGB bgColor = teal;
-struct RGB fgColor = white;
-int lumin = 20;
-int pixelPos = 0;
-int text_delay = 60;
 
 void setup() {
   // initialize serial:
